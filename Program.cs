@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 
 using System;
 using System.Net.Http.Headers;
@@ -46,7 +46,7 @@ public class Class1
         new MediaTypeWithQualityHeaderValue("application/json"));
 
         // Get data response
-        var response = client.GetAsync(urlParameters).Result; 
+        var response = await client.GetAsync(urlParameters);
 
         /* ======================== CLI menu ========================
         Users should be able to:
@@ -162,19 +162,22 @@ public class Class1
         
         // Step 2: View all stored jokes.
         Console.WriteLine("View all stored jokes: "); 
-        foreach (var item in scores)
+        lock (scores)
         {
-            JokeBuilder? jokeBuilderItem = JsonConvert.DeserializeObject<JokeBuilder>(item.Value.ToString());
-            Console.WriteLine("Joke ID: {0}", item.Key);
-            if (jokeBuilderItem != null)
+            foreach (var item in scores)
             {
-                Console.WriteLine("Joke type: {0}", jokeBuilderItem.type);
-                Console.WriteLine("Joke setup: {0}", jokeBuilderItem.setup);
-                Console.WriteLine("Joke punchline: {0}", jokeBuilderItem.punchline);
-            }
-            else
-            {
-                Console.WriteLine("JokeBuilder item is null.");
+                JokeBuilder? jokeBuilderItem = JsonConvert.DeserializeObject<JokeBuilder>(item.Value.ToString());
+                Console.WriteLine("Joke ID: {0}", item.Key);
+                if (jokeBuilderItem != null)
+                {
+                    Console.WriteLine("Joke type: {0}", jokeBuilderItem.type);
+                    Console.WriteLine("Joke setup: {0}", jokeBuilderItem.setup);
+                    Console.WriteLine("Joke punchline: {0}", jokeBuilderItem.punchline);
+                }
+                else
+                {
+                    Console.WriteLine("JokeBuilder item is null.");
+                }
             }
         }
 
@@ -191,15 +194,18 @@ public class Class1
         Console.WriteLine("Enter joke type: ");
         string? input = Console.ReadLine();
         string jokeType = input ?? string.Empty;
-        foreach (var item in scores)
+        lock (scores)
         {
-            JokeBuilder? jokeBuilderItem = JsonConvert.DeserializeObject<JokeBuilder>(item.Value.ToString());
-            if (jokeBuilderItem != null && jokeBuilderItem.type == jokeType)
+            foreach (var item in scores)
             {
-                Console.WriteLine("Joke ID: {0}", item.Key);
-                Console.WriteLine("Joke type: {0}", jokeBuilderItem.type);
-                Console.WriteLine("Joke setup: {0}", jokeBuilderItem.setup);
-                Console.WriteLine("Joke punchline: {0}", jokeBuilderItem.punchline);
+                JokeBuilder? jokeBuilderItem = JsonConvert.DeserializeObject<JokeBuilder>(item.Value.ToString());
+                if (jokeBuilderItem != null && jokeBuilderItem.type == jokeType)
+                {
+                    Console.WriteLine("Joke ID: {0}", item.Key);
+                    Console.WriteLine("Joke type: {0}", jokeBuilderItem.type);
+                    Console.WriteLine("Joke setup: {0}", jokeBuilderItem.setup);
+                    Console.WriteLine("Joke punchline: {0}", jokeBuilderItem.punchline);
+                }
             }
         }
 
@@ -224,18 +230,29 @@ public class Class1
             Console.WriteLine("Number of jokes to remove is 0.");
             return;
         }
-        for (int i = 0; i < numberOfJokesToRemove; i++)
+        lock (scores)
         {
-            Console.WriteLine("Enter joke ID you want to remove: ");
-            String? input = Console.ReadLine();
-            if (input == null  || input == string.Empty)
+            for (int i = 0; i < numberOfJokesToRemove; i++)
             {
-                Console.WriteLine("Input is empty.");
-                return;
-            } else {
-                int jokeID = Convert.ToInt32(input);
-                var keyToRemove = scores.FirstOrDefault(x => x.Key == jokeID).Key;
-                scores.TryRemove(keyToRemove, out _);
+                // Remove jokes safely
+                Console.WriteLine("Enter joke ID you want to remove: ");
+                String? input = Console.ReadLine();
+                if (input == null  || input == string.Empty)
+                {
+                    Console.WriteLine("Input is empty.");
+                    return;
+                } else {
+                    int jokeID = Convert.ToInt32(input);
+                    var keyToRemove = scores.FirstOrDefault(x => x.Key == jokeID).Key;
+                    if (scores.TryRemove(jokeID, out _))
+                    {
+                        Console.WriteLine($"Joke with ID {jokeID} removed.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Joke with ID {jokeID} not found.");
+                    }
+                }
             }
         }
 
