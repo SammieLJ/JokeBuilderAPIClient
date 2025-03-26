@@ -32,10 +32,10 @@ Add these NuGet packages (as cmd commands):
 * dotnet add package xunit.runner.visualstudio
 
 To try out:
-dotnet clean
-dotnet build
-dotnet run --project JokeProcessing
-dotnet test
+- dotnet clean
+- dotnet build
+- dotnet run --project JokeProcessing
+- dotnet test
 
 To Run Tests Efficiently:
-dotnet test --filter "FullyQualifiedName~JokeService.Tests"
+- dotnet test --filter "FullyQualifiedName~JokeService.Tests"
