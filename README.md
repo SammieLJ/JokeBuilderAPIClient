@@ -20,7 +20,7 @@ More info about package: https://www.nuget.org/packages/newtonsoft.json/
 
 Did it, as dailly practice to keep with programming skills, minimum usage of GitHub CoPilot in VS Code
 
-Update:
+**Update:**
 Made more compelx with test cases. Cleaned some bits, static helper methods are now type Task for more thread safety. Didn't add libraries, cached objects and exe files, because you can build it locally, no need to spam github. Instructions are bellow, how to run.
 
 After cloning repository, you should be in command prompt or teminal, set to "JokeBuilderAPIClient" folder, that would be working root folder. You should have .Net 8 installed (check with cmd dotnet --version) and dotnet command should work.
